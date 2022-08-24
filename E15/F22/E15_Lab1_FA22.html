@@ -1,0 +1,186 @@
+**ENGR 015 Lab 1 (Fall 2022): Introduction to Program Flow in Embedded Systems**
+
+# Lab Overview
+The goal of this lab is to introduce you to the basics of program flow in embedded systems. You'll review code from two different systems (a Haas Milling Machine and the Adafruit Circuit Playground), predict what you expect the output to be for a set of different programs, and then compare your predictions with the live results from said programs. After gaining some experience reading code, you'll also write your own programs on the Circuit Playground based on the specifications described later in the lab.
+
+By the end of this lab, you should be able to describe how the `setup()` and `loop()` functions work on the Circuit Playground, and write your own programs to set the neopixels (lights) to arbitrary values. Instructions for grading and what to turn in are included in the [Lab Report section](#Lab Report).
+
+# Lab Groups
+
+- [ ] lab groups will be added here after registration
+
+# Understanding Program Flow (Lab Exercises)
+For this lab, you will be reviewing code for two different embedded systems (Haas Milling Machine and Circuit Playground). The Haas Milling Machine is a large manufacturing machine located in the Singer basement. As such, lab groups will be rotated through the machine shop in shifts. Please review the Haas machine code before your shift downstairs, and complete the Circuit Playground exercises as you wait if you have a later shift.
+
+## Haas Milling Machine (2 pts)
+The Haas Milling Machine in the Singer Basement is a Computer Numerical Control (CNC) machine. A user can design a part using Computer Assisted Design (CAD) tools like Fusion360, and the machine automatically generates and executes instructions to create the desired part through a process known as subtractive manufacturing (it removes material rather than adding it). Although very different from the small embedded systems we'll be using in the rest of E15, this is a good physical example of how programming and embedded systems work in a physical way. You can watch the each line of code in real time as the machine mills the part. 
+
+![Figure [CNC]: Picture of an example Haas CNC Mill.](images/Example_Haas_CNC_Mill.png)
+
+The Haas milling machine uses a series codes called [G-codes](https://www.haascnc.com/service/service-content/guide-procedures/mill---g-codes.html) and [M-codes](https://www.haascnc.com/service/service-content/guide-procedures/mill---m-codes.html) to create parts. (You don't need to understand what all of these do.) Review the code below and write down what kind of part you predict will be cut out by the machine. Assume the part is a rectangle to start with. I've included some comments on the code to help get you started. Tip: get a piece of paper and draw out what each step does.
+
+- [ ] comments for program will be added prior to lab start
+
+```
+( Square Contour Milling ); 
+( TOOL 2/ DIA 0.375 );
+( SPINDLE 3000 RPM / FEED 25. IPM );
+( DEPTH -0.2 ); 
+G00 G17 G40 G49 G80 G90;
+G10 L12 P2 R0.375 (THIS LINE SETS D2 OFFSET); 
+T2 M06; 
+G00 G90 G54 X1.375 Y0. S3000 M03;
+G43 H02 Z0.1 MO8;
+G0l Z-0.2 F12.5; 
+G01 G41 D02 X1.1875 Y0.375 F25.;
+G03 X0.8125 Y0. R0.375;
+( RADIUS CORNERS - OUTSIDE ); 
+G01 G90 Y-1. R0.0500; 
+G01 X-0.8125 R0.0500;
+G01 Y1. , R0.0500;
+G0l X0.8125, R0.0500; 
+G01 Y0.;
+G03 X1.1875 Y-0.375 R0.375;
+G01 G40 X1.375 Y0.;
+G00 Z0.1 M09; 
+G00 G90 G53 Z0 M05;
+M01 ( END VPS SQUARE CONTOUR );
+```
+
+Once it is your turn, enjoy your time down in the machine shop, and compare your prediction to the actual value. If your prediction was incorrect, figure out why and include it in your writeup.
+
+## Circuit Playground (8 pts)
+The Circuit Playground is a small embedded system that you'll be using in lecture. It has 10 colored LEDs called neopixels that can be set to arbitrary different colors, along with sensors and buttons. You'll learn more about these in lecture.
+
+![Figure [playground]: The Adafruit Circuit Playground.](images/circuit_playground_3000_front_lit_ORIG.jpeg)
+
+For this lab, our goal is to learn the basic program flow of the code that runs on the Circuit Playground. We'll use the neopixels as an example to get familiar with the system. The device consists of two functions that we can write code inside of. One is called `setup()`; code inside here is run once. The other is called `loop()`; code inside here is run indefinitely. When writing code for the CircuitPlayground, use the following as a template:
+
+```
+#include &lt;Adafruit_CircuitPlayground.h&gt;
+
+void setup(){
+	// code can be placed here and will run once
+	CircuitPlayground.begin(); // initializes circuit playground functions
+}
+
+void loop(){
+	// code can be placed here and will be run repeatedly
+}
+```
+
+In this lab, we'll focus on predicting the output of a function called `CircuitPlayground.setPixelColor()`. This function allows us to set the value of any given neopixel on the Circuit Playground to different colors of the rainbow like in the picture above. After we get familiar with the basics, we'll write our own programs as well.
+
+The `CircuitPlayground.setPixelColor()` function requires four inputs called arguments. For example, to set the 1st neopixel to red, the function would look like this: `CircuitPlayground.setPixelColor(1,255,0,0)`. The arguments are as follows:
+1. the neopixel number (0 to 9)
+2. the intensity of **red** to set the pixel to (0 to 255)
+3. the intensity of **green** to set the pixel to (0 to 255)
+4. the intensity of **blue** to set the pixel to (0 to 255)
+
+In this case, we set the first argument to 1, and then the red argument to 255. This sets the 1st neopixel to the maximum possible red. Different colors can be created with different combinations of intensity for the red, green, and blue arguments.
+
+### Running Code For The First Time
+To run code for the first time, log in to one of the windows computers in the lab, open the Arduino IDE program, then follow the instructions on [this page](https://learn.adafruit.com/introducing-circuit-playground/set-up-test-arduino#blink-2921627) starting with the "Blink" section. If the code runs correctly, the red LED next to the USB port will blink slowly. (Don't worry about how this code works yet; for now, our goal is to make sure we can program successfully.) Once you've confirmed you can program your Circuit Playground, proceed to the exercises.
+
+### Prediction Exercise 1
+Consider the following code written below. Examine the code, and discuss what you think the result of the code will be with your group mates: Which neopixel(s) should turn on, and what color will it/they be? After that, copy the code into a new file in the Arduino IDE, save it, and run the code. Does the output match what you predicted? Write down both results and submit them with your lab report.
+
+```
+#include &lt;Adafruit_CircuitPlayground.h&gt;
+
+void setup(){
+	// code can be placed here and will run once
+	CircuitPlayground.begin();
+	CircuitPlayground.setPixelColor(7, 0, 255, 0);
+}
+
+void loop(){
+	// code can be placed here and will be run repeatedly
+}
+```
+
+### Prediction Exercise 2
+Repeat the prediction exercise for the following code below.
+
+```
+#include &lt;Adafruit_CircuitPlayground.h&gt;
+
+void setup(){
+	// code can be placed here and will run once
+	CircuitPlayground.begin();
+}
+
+void loop(){
+	// code can be placed here and will be run repeatedly
+	CircuitPlayground.setPixelColor(7, 0, 255, 0);
+}
+```
+
+### Prediction Exercise 3
+This exercise introduces a new function called `delay()`. This function takes one argument: a delay in milliseconds. There are 1000 milliseconds in one second. Repeat the prediction exercise for the following code below.
+
+```
+#include &lt;Adafruit_CircuitPlayground.h&gt;
+
+void setup(){
+	// code can be placed here and will run once
+	CircuitPlayground.begin();
+}
+
+void loop(){
+	// code can be placed here and will be run repeatedly
+	CircuitPlayground.setPixelColor(7, 0, 255, 0);
+	delay(1);
+	CircuitPlayground.setPixelColor(7,0,0,0);
+	delay(1);
+}
+```
+
+### Written Exercise 1
+You may have guessed that the code in prediction exercise 3 was supposed to turn the neopixel on and off, but it appeared on only. Adjust the argument in the delay function until you can see a visual blinking of the neopixel. Approximately how long does this delay need to be for you to see it? Record your answer and include your code in your lab report.
+
+### Written Exercise 2
+Write a program that turns the 0th neopixel bright purple using only values of 255. Think back to which colors you needed to mix to create purple with paints! You may find this [RGB color codes chart](https://www.rapidtables.com/web/color/RGB_Color.html) helpful. Include your code in your lab report.
+
+### Written Exercise 3
+Write a program that uses the same purple color but is also half as bright. (Hint: use a value different than 255). Include your code in your lab report.
+
+### Written Exercise 4
+Write several programs and gradually decrease the intensity of the purple neopixel. At what intensity can you no longer see the color? Record your answer and include your code for the final answer in your lab report.
+
+
+# Lab Report
+## Points Breakdown
+This lab will be worth 10 points total, allocated as follows:
+- 2 pts: Haas prediction exercise
+- 3 pts: Circuit Playground prediction exercise
+- 5 pts: Writing your own code for the Circuit Playground
+
+In order to receive full points, the lab report should contain the following information:
+- Haas prediction exercise (2 pts)
+	- Your group's prediction about what the code might do (1 pt).
+	- What the code did. If it is different than expected, include an explanation why (1 pt).
+- Circuit Playground prediction exercise (3 pts)
+	- Your prediction and the correct result for each Circuit Playground prediction exercise, including an explanation if the correct result was different than expected (1 pt each).
+- Writing your own code for the Circuit Playground (5 pts)
+	- Commented code for written exercise 1 (1 pt)
+	- Commented code for written exercise 2 (1 pt)
+	- Commented code for written exercise 3 (1 pts)
+	- Commented code for written exercise 4 (2 pts)
+
+## Code Conventions
+When including code in your lab reports, please follow the following conventions:
+- Use text, *not* screenshots
+- Use a monospace font such as Courier New (for a list, see [here](https://en.wikipedia.org/wiki/List_of_monospaced_typefaces))
+- Use single spacing (Google Docs defaults to 1.15)
+- Include comments that explain what the code does to someone else in the class already familiar with programming basics; you do not need a comment for every line
+- Check your comments and make sure they wrap to the next line (or put them there manually) when printing/saving your document
+
+These conventions make your code much easier for me to test and grade promptly. Any code that does not follow these conventions may have points deducted.
+
+## Report Submission
+**Reports are due one week after your scheduled lab session.** One group member should submit the lab report as a PDF on Moodle and list each other group member on the front page. Any reports with missing group members may have points deducted.
+
+
+
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js" charset="utf-8"></script><script src="https://morgan3d.github.io/markdeep/latest/markdeep.min.js" charset="utf-8"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
