@@ -7,47 +7,97 @@ By the end of this lab, you should be able to describe how the `setup()` and `lo
 
 # Lab Groups
 
-- [ ] lab groups will be added here after registration
+Lab groups will be added here after registration.
 
 # Understanding Program Flow (Lab Exercises)
 For this lab, you will be reviewing code for two different embedded systems (Haas Milling Machine and Circuit Playground). The Haas Milling Machine is a large manufacturing machine located in the Singer basement. As such, lab groups will be rotated through the machine shop in shifts. Please review the Haas machine code before your shift downstairs, and complete the Circuit Playground exercises as you wait if you have a later shift.
 
 ## Haas Milling Machine (2 pts)
-The Haas Milling Machine in the Singer Basement is a Computer Numerical Control (CNC) machine. A user can design a part using Computer Assisted Design (CAD) tools like Fusion360, and the machine automatically generates and executes instructions to create the desired part through a process known as subtractive manufacturing (it removes material rather than adding it). Although very different from the small embedded systems we'll be using in the rest of E15, this is a good physical example of how programming and embedded systems work in a physical way. You can watch the each line of code in real time as the machine mills the part. 
+The Haas Milling Machine in the Singer Basement is a Computer Numerical Control (CNC) machine. A user can design a part using Computer Assisted Design (CAD) tools like Fusion360, and the machine automatically generates and executes instructions to create the desired part through a process known as subtractive manufacturing (it removes material rather than adding it). Although very different from the small embedded systems we'll be using in the rest of E15, we're including it in lab 1 as it is a good physical example of how programming and embedded systems work in the real world. You can watch the each line of code in real time as the machine mills the part. 
 
 ![Figure [CNC]: Picture of an example Haas CNC Mill.](images/Example_Haas_CNC_Mill.png)
 
-The Haas milling machine uses a series codes called [G-codes](https://www.haascnc.com/service/service-content/guide-procedures/mill---g-codes.html) and [M-codes](https://www.haascnc.com/service/service-content/guide-procedures/mill---m-codes.html) to create parts. (You don't need to understand what all of these do.) Review the code below and write down what kind of part you predict will be cut out by the machine. Assume the part is a rectangle to start with. I've included some comments on the code to help get you started. Tip: get a piece of paper and draw out what each step does.
+### Understanding G-codes
 
-- [ ] comments for program will be added prior to lab start
+
+The Haas milling machine uses special codes called G-codes and M-codes to create parts. The code is divided up into three sections: setup/calibration, cutting, and wrapup. For this lab, we'll focus on the cutting part, though I'll include the full code at the end if you are curious. There will be three different programs. Check the [Lab Groups Section](#LabGroups) to see which code you'll be working with.
+
+The relevant code for this lab is the `G01` G-code. This is used to cut a part using linear motion, meaning that the tool that cuts the part moves in a straight line to the specified coordinates. The `G01` code has two components:
+
+- X, Y, Z coordinates to move to
+- arc radius (R) or chamfer distance (C)
+
+The arc radius or chamfer distance are used to alter the corners of the part (called a fillet or a chamfer). Applying these to the corner of the piece has a number of advantages: 1) it makes assembly of multiple parts easier, 2) it keeps a user from injuring themselves on a sharp edge and 3) it looks better than a normal edge. Our code examples will apply either a fillet or chamfer to a part.
+
+![Figure [edge]: Example of an edge that is either untouched (left), has a chamfer (middle), or fillet (right). [Image source](https://www.mytworks.com/wp-content/uploads/2019/05/Edge.Chamfer.Fillet.grey_okajtg.jpg)](images/edge_chamfer_fillet.png)
+
+An example line of G-code might look like this: `G01 Y-1., R0.0500`. This tells the code to move Y to -1 inches with a rounded corner of 0.05 inches. If you see a `G90` after the `G01`, that means that all the following values are absolute positions for the subsequent commands.
+
+For your code example, please determine:
+
+- What you expect the size of the part to be
+- The likely starting position of the tool that cuts the part
+- What the part might look like after the program has completed
+
+You will verify your answers as you watch the code run live in the shop. Be sure to keep track of your predictions and the results for your lab report.
+
+### Code Example 1
+
+```
+G01 G90 Y-1. , R0.0500; 
+G01 X-0.8125 , R0.0500;
+G01 Y1. , R0.0500;
+G01 X0.8125, R0.0500; 
+```
+
+### Code Example 2
+
+```
+G01 G90 Y-1. , C0.0500; 
+G01 X-0.8125 , C0.0500;
+G01 Y1. , C0.0500;
+G01 X0.8125, C0.0500; 
+```
+
+### Code Example 3
+
+```
+G01 G90 Y-1. , R0.1500; 
+G01 X-0.8125 , R0.1500;
+G01 Y1. , R0.1500;
+G01 X0.8125, R0.1500; 
+```
+
+### Full Code And More Information
+If you'd like to learn more, you can read more about [G-codes](https://www.haascnc.com/service/service-content/guide-procedures/mill---g-codes.html) and [M-codes](https://www.haascnc.com/service/service-content/guide-procedures/mill---m-codes.html) and check out an example full code below. Be on the look out for [advanced courses](https://www.swarthmore.edu/engineering/courses) or ask J if you can be trained to use these and other shop equipment.
+
+Note: information between the parentheses are comments for the operator.
 
 ```
 ( Square Contour Milling ); 
-( TOOL 2/ DIA 0.375 );
+( TOOL 3/ DIA 0.379 );
 ( SPINDLE 3000 RPM / FEED 25. IPM );
-( DEPTH -0.2 ); 
+( DEPTH -0.3 ); 
 G00 G17 G40 G49 G80 G90;
-G10 L12 P2 R0.375 (THIS LINE SETS D2 OFFSET); 
-T2 M06; 
-G00 G90 G54 X1.375 Y0. S3000 M03;
-G43 H02 Z0.1 MO8;
-G0l Z-0.2 F12.5; 
-G01 G41 D02 X1.1875 Y0.375 F25.;
-G03 X0.8125 Y0. R0.375;
+G10 L12 P2 R0.375 (THIS LINE SETS D3 OFFSET); 
+T3 M06; 
+G00 G90 G54 X1.381 Y0. S3000 M03;
+G43 H03 Z0.1 M08;
+G01 Z-0.3 F12.5; 
+G01 G41 D03 X1.1915 Y0.379 F25.;
+G03 X0.8125 Y0. R0.379;
 ( RADIUS CORNERS - OUTSIDE ); 
-G01 G90 Y-1. R0.0500; 
-G01 X-0.8125 R0.0500;
+G01 G90 Y-1. , R0.0500; 
+G01 X-0.8125 , R0.0500;
 G01 Y1. , R0.0500;
-G0l X0.8125, R0.0500; 
+G01 X0.8125, R0.0500; 
 G01 Y0.;
-G03 X1.1875 Y-0.375 R0.375;
-G01 G40 X1.375 Y0.;
+G03 X1.1915 Y-0.379 R0.379;
+G01 G40 X1.381 Y0.;
 G00 Z0.1 M09; 
 G00 G90 G53 Z0 M05;
 M01 ( END VPS SQUARE CONTOUR );
 ```
-
-Once it is your turn, enjoy your time down in the machine shop, and compare your prediction to the actual value. If your prediction was incorrect, figure out why and include it in your writeup.
 
 ## Circuit Playground (8 pts)
 The Circuit Playground is a small embedded system that you'll be using in lecture. It has 10 colored LEDs called neopixels that can be set to arbitrary different colors, along with sensors and buttons. You'll learn more about these in lecture.
@@ -69,9 +119,13 @@ void loop(){
 }
 ```
 
+All text after a `//` are called comments. These are for humans only and are not interpreted by the Circuit Playground.
+
 In this lab, we'll focus on predicting the output of a function called `CircuitPlayground.setPixelColor()`. This function allows us to set the value of any given neopixel on the Circuit Playground to different colors of the rainbow like in the picture above. After we get familiar with the basics, we'll write our own programs as well.
 
-The `CircuitPlayground.setPixelColor()` function requires four inputs called arguments. For example, to set the 1st neopixel to red, the function would look like this: `CircuitPlayground.setPixelColor(1,255,0,0)`. The arguments are as follows:
+The `CircuitPlayground.setPixelColor()` function requires four inputs called arguments. For example, to set the 1st neopixel to red, the function would look like this: `CircuitPlayground.setPixelColor(1,255,0,0);`. Note that the arguments are contained between parentheses `()` and there is a semicolon `;` at the end that indicates the statement is complete. 
+
+The arguments are as follows:
 1. the neopixel number (0 to 9)
 2. the intensity of **red** to set the pixel to (0 to 255)
 3. the intensity of **green** to set the pixel to (0 to 255)
@@ -83,14 +137,14 @@ In this case, we set the first argument to 1, and then the red argument to 255. 
 To run code for the first time, log in to one of the windows computers in the lab, open the Arduino IDE program, then follow the instructions on [this page](https://learn.adafruit.com/introducing-circuit-playground/set-up-test-arduino#blink-2921627) starting with the "Blink" section. If the code runs correctly, the red LED next to the USB port will blink slowly. (Don't worry about how this code works yet; for now, our goal is to make sure we can program successfully.) Once you've confirmed you can program your Circuit Playground, proceed to the exercises.
 
 ### Prediction Exercise 1
-Consider the following code written below. Examine the code, and discuss what you think the result of the code will be with your group mates: Which neopixel(s) should turn on, and what color will it/they be? After that, copy the code into a new file in the Arduino IDE, save it, and run the code. Does the output match what you predicted? Write down both results and submit them with your lab report.
+Consider the following code written below. Examine the code, and discuss what you think the result of the code will be with your group mates: Which neopixel(s) should turn on, and what color will it be? After that, copy the code into a new file in the Arduino IDE, save it, and run the code. Does the output match what you predicted? Write down both results and submit them with your lab report.
 
 ```
 #include &lt;Adafruit_CircuitPlayground.h&gt;
 
 void setup(){
 	// code can be placed here and will run once
-	CircuitPlayground.begin();
+	CircuitPlayground.begin(); // initializes circuit playground functions
 	CircuitPlayground.setPixelColor(7, 0, 255, 0);
 }
 
@@ -107,7 +161,7 @@ Repeat the prediction exercise for the following code below.
 
 void setup(){
 	// code can be placed here and will run once
-	CircuitPlayground.begin();
+	CircuitPlayground.begin(); // initializes circuit playground functions
 }
 
 void loop(){
@@ -124,7 +178,7 @@ This exercise introduces a new function called `delay()`. This function takes on
 
 void setup(){
 	// code can be placed here and will run once
-	CircuitPlayground.begin();
+	CircuitPlayground.begin(); // initializes circuit playground functions
 }
 
 void loop(){
@@ -172,7 +226,7 @@ In order to receive full points, the lab report should contain the following inf
 When including code in your lab reports, please follow the following conventions:
 - Use text, *not* screenshots
 - Use a monospace font such as Courier New (for a list, see [here](https://en.wikipedia.org/wiki/List_of_monospaced_typefaces))
-- Use single spacing (Google Docs defaults to 1.15)
+- Use single spacing (i.e. 1.0 spacing; Google Docs defaults to 1.15)
 - Include comments that explain what the code does to someone else in the class already familiar with programming basics; you do not need a comment for every line
 - Check your comments and make sure they wrap to the next line (or put them there manually) when printing/saving your document
 
