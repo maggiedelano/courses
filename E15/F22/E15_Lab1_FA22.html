@@ -31,7 +31,7 @@ The arc radius or chamfer distance are used to alter the corners of the part (ca
 
 ![Figure [edge]: Example of an edge that is either untouched (left), has a chamfer (middle), or fillet (right). [Image source](https://www.mytworks.com/wp-content/uploads/2019/05/Edge.Chamfer.Fillet.grey_okajtg.jpg)](images/edge_chamfer_fillet.png)
 
-An example line of G-code might look like this: `G01 Y-1., R0.0500`. This tells the code to move Y to -1 inches with a rounded corner of 0.05 inches. If you see a `G90` after the `G01`, that means that all the following values are absolute positions for the subsequent commands.
+An example line of G-code might look like this: `G01 Y-1., R0.0500`. This tells the code to move to -1 inches in the Y-axis, while keeping the X and Z axes constant, and with a rounded corner of 0.05 inches. If you see a `G90` after the `G01`, that means that all the following values are absolute positions for the subsequent commands.
 
 For your code example, please determine:
 
