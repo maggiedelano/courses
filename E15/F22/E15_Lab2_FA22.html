@@ -1,0 +1,207 @@
+**ENGR 015 Lab 2 (Fall 2022): Using Conditionals and Buttons to Create A Passcode Enabled LED**
+
+# Lab Overview
+In this lab, you will use what you've learned about conditionals and boolean variables to build your own small embedded system to toggle an LED after a sequence of push buttons are pressed. You'll learn about configuring pins as inputs or outputs using `pinMode()`, reading the state of a button using `digitalRead()`, debouncing push buttons using `millis()`, counting single button presses with debounce, and how to turn on an LED using `digitalWrite()`. You'll also learn basic breadboarding technique to connect your LED to a microcontroller.
+
+# Lab Groups
+Lab groups will be shared on the projector screen in class.
+
+# Introduction to Arduino Uno and Joystick Shield
+For this lab we will be using the [Sparkfun Joystick Shield](https://www.sparkfun.com/products/9760) along with the [Arduino Uno](https://store-usa.arduino.cc/products/arduino-uno-rev3). The Arduino Uno is similar to the Circuit Playground, but its pins are more easily accessible for prototyping, and we can attach "shields" to the top for additional functionality. The Joystick shield we are using has a two axis Joystick (X and Y) that can be depressed, a reset button, and four larger push buttons. The setup is similar to a basic video game controller. The main difference between the Circuit Playground and the Arduino Uno you need to know now is that it does not have access to the `CircuitPlayground.` functions like `CircuitPlayground.setPixelColor()` or `CircuitPlayground.leftButton()` etc. Instead, we'll learn how implement all the functionality we need to manually using the built in Arduino functions.
+
+In order to interface with the Joystick shield, we need to know the pins that each of the different components are connected to. We can use this "pin out" list to create `#define` lines in our code for easier reading. Here's the pin out of the shield:
+
+- A0 – Joystick X (not used in this lab)
+- A1 – Joystick Y (not used in this lab)
+- 2 – Joystick Select Button (not used in this lab)
+- 3 – Right Button
+- 4 – Up Button
+- 5 – Down Button
+- 6 – Left Button
+
+To use these values in our code, we can define each pin at the top of our file. Feel free to use names that make sense to you. A common convention in C programming is to use upper case variable names for `#define` statements, but this is not required. Here's how an example file might look:
+
+```
+#define BRHT 3
+#define BUP 4
+#define BDWN 5
+#define BLFT 6
+
+void setup(){
+
+}
+
+void loop(){
+
+}
+```
+
+Programming the Arduino Uno using the Arduino IDE is almost the same as programming the Circuit Playground; click Tools > Boards and select "Arduino Uno" from the list. Be sure to also update the port if needed.
+
+# Lab Exercises
+## Detecting A Button Press (1 pts)
+When programming the Circuit Playground, we were able to use the `CircuitPlayground.leftButton()` or `CircuitPlayground.rightButton()` functions to get the state of the left and right buttons. We could then use the "rising edge" logic taught in lecture to detect individual button presses. For this exercise, you'll do the same for a single button on the Joystick shield.
+
+Detecting a button press on the Joystick shield requires a few additional steps. To illustrate this, use this short program that displays the state of the pin that is used for the "Up" button (pin 4) using `digitalRead()` and `Serial.println()`. Then open up the serial plotter, press the button a few times, and see what happens. Does it behave as you expect?
+
+```
+#define BRHT 3
+#define BUP 4
+#define BDWN 5
+#define BLFT 6
+
+void setup(){
+  Serial.begin(9600);
+  while(!Serial);
+}
+
+void loop(){
+
+  // print state of BUP pin to Serial Port 
+  Serial.println(digitalRead(BUP));  
+}
+```
+
+The state of the button doesn't change because we're missing what's called a **[pull up resistor](https://learn.sparkfun.com/tutorials/pull-up-resistors/all)**. Buttons are switches, and switches on their own don't change the state of the pin. We can use a pull up resistor to make sure that the state of the pin is different when it is pressed and when it is not. Now try running this code:
+
+```
+#define BRHT 3
+#define BUP 4
+#define BDWN 5
+#define BLFT 6
+
+void setup(){
+  Serial.begin(9600);
+  while(!Serial);
+
+  // configure pin w/ pull up resistor
+  pinMode(BUP, INPUT_PULLUP);
+}
+
+void loop(){
+
+  // print state of BUP pin to Serial Port 
+  Serial.println(digitalRead(BUP));  
+}
+```
+
+The `pinMode()` function adds a pull up resistor to the `BUP` pin. The state of the pin should now change when you press the button. However, the transition is the opposite of what you saw in lecture: a button press is detected on a *falling* edge instead of a rising one. Write a program that detects the falling edge and prints a message to the serial port when a button press is detected. You can use code from lecture as a starting point if you'd like, but remember to use `digitalRead()` instead of one of the `CircuitPlayground` functions. 
+
+## Writing Debounce Code For A Button (2 pts)
+
+You may have already noticed that our button press detection code sometimes detects multiple button presses even though we only pressed the button once. Although it's hard for us to see on the serial plotter, this can occur due to "bouncing" on the input pin that looks like this:
+
+![Figure [CNC]: Example push button bounce on microcontroller pin ([image source](https://www.best-microcontroller-projects.com/image-files/switch_bounce.png))](https://www.best-microcontroller-projects.com/image-files/switch_bounce.png)
+
+This occurs because the mechanical components inside push buttons "bounce" off of each other, mostly due to the spring inside the push button. In order to prevent this "bounce," we can write code that ignores the extra bounces and only registers a button press if the button has been depressed for a certain period of time called the **debounce time**. The debounce time depends on the properties of the button, but it's usually around 50 – 150 ms. 
+
+One way to implement this would be to use `delay()` to wait for the debounce time, and then check if the button is still pressed. If the button is still pressed, we should display the button pressed result to the serial monitor. However, the major issue with using `delay()` is that it is what is called a **blocking operation**. While we are waiting for the `delay()` function to finish, our code cannot do anything else. Although fine for a simple example, this won't work when we need our code to do other things, like check other buttons. 
+
+Instead of `delay()`, we'll use a **non-blocking operation** using an if statement and a function called `millis()`. This function returns the number of milliseconds since the program has started as an `unsigned long`. We can compare the current time to the last time that a button press was last detected. If it has been enough time, we check to see if the button is still pressed. If it is, we display the message to the serial terminal. Your code will then look something like the below. You'll need to figure out and fill in the logic for the corresponding `if` statements.
+
+```
+#define BRHT 3
+#define BUP 4
+#define BDWN 5
+#define BLFT 6
+
+// button states
+bool prevStateUp;
+bool currStateUp;
+
+unsigned long lastButtonPress;
+unsigned long debounceDelay = 50; // 50 ms debouceDelay
+
+void setup(){
+  Serial.begin(9600);
+  while(!Serial);
+
+  pinMode(BUP, INPUT_PULLUP);
+}
+
+void loop(){
+
+  // update button state
+  prevStateUp = currStateUp; 
+  currStateUp = digitalRead(BUP);
+
+  // detect falling edge
+  if (FALLING EDGE LOGIC){
+    lastButtonPress = millis();
+  }
+
+  if (DEBOUNCE TIMER LOGIC){
+    
+    // if button is still pressed, print press message 
+    if (BUTTON PRESSED LOGIC){
+      Serial.println("UP button press detected!");
+    }
+  }
+  
+}
+```
+
+You may have noticed that there's a slight issue with this code: once it *does* detect a button press, it repeats the message until you release it. Update your code to prevent this using a boolean variable that ensures the message is displayed only once per button press. After that, tweak the `debounceDelay` as needed to prevent extra button presses from being detected.
+
+## Wiring up an LED (1 pt)
+After your debounce code is successful, it's time to use hardware for the first time to connect an LED to the Arduino Uno. To do this we will be using a device called a breadboard. A breadboard is a small circuit board that has holes that 22 gauge wires can fit into that we can use to rapidly prototype circuits. It has connections across the numbered rows in columns A–E and F–J as shown. It also has connections down either side called "rails" that are used to connect power and ground for more involved circuits.
+
+![Figure [breadboard]: Example breadboard connections ([image source](https://magpi.raspberrypi.com/articles/breadboard-tutorial))](images/Breadboard_Anno.jpeg)
+
+For this lab, we will be connecting an LED to pin 7 on the Arduino Uno to turn it on and off in response to button presses on the Joystick shield. We connect pin 7 on the Arduino Uno to a 150 Ω resistor, and then that resistor to the LED. This limits the amount of current flowing through the LED so we don't burn out the Arduino Uno pin or destroy the LED by sourcing too much current. We also connect the LED to the ground terminal. This completes the circuit so current will flow.
+
+Connect the resistor to pin 7 using a short wire. You can get a piece of wire using the provided wire strippers. The positive end of the LED (the longer lead) should be connected to the opposite end of the resistor from the wire to pin 7. Then connect the shorter lead of the LED to ground using anothe wire. Your results should look something like this image, though the components don't need to be in exactly the same rows:
+
+![Figure [LED]: Wiring up an LED](images/LED_wiring.png)
+
+To test if your LED works, add a line to `setup()` that sets 7 as an output: `pinMode(7, OUTPUT);`. This allows us to use the `digitalWrite()` function to turn the LED on and off. You can use the `digitalWrite(7,HIGH)` command to turn the LED on. This sets pin 7 to `HIGH` (or 1). To turn the LED off, you can use `digitalWrite(7, LOW)`. 
+
+## Toggle LED State (2 pts)
+Update your code from previous exercises to toggle the LED state when the UP button is pressed.
+
+## Toggle LED Based on Sequence of Button Presses (4 pts)
+Now that you've got the LED toggling working for one button press, let's update our code to work with all buttons and then use those buttons to turn on the LED based on a sequence of button presses. Complete the following steps, saving the code separately each time in case you make a mistake in the later steps:
+
+1. Update your code so that it can detect button presses from each button without debounce. Confirm this works by sending messages to the serial terminal.
+2. Update your code so all four buttons work with their own debounce timers.
+3. Add additional logic using `if` statements and variables to keep track of the current state of the system, and only turn the LED on after a sequence of at least 3 different button presses (e.g. UP then DOWN then RIGHT).
+
+If you are stuck on part 2, you can skip it and come back to it later, but you should complete it for full points.
+
+## Challenge Exercise
+If you finish early, consider completing this challenge exercise: update your code so that combinations of two button presses (e.g. UP/DOWN or UP/RIGHT) can be used to toggle the LED in addition to single button presses. This can be done using only boolean variables, but you may want to use variables other than booleans to keep track of the state, if you weren't already doing that for Exercise 5.
+
+# Lab Report
+## Points Breakdown
+This lab will be worth 10 points total, allocated as follows:
+1. Detecting A Button Press (1 pts)
+2. Writing Debounce Code For A Button (2 pts)
+3. Wiring up an LED (1 pt)
+4. Toggle LED State (2 pts)
+5. Toggle LED Based on Sequence of Button Presses (4 pts)
+
+In order to receive full points, the lab report should contain the following information:
+- Exercise 1: Falling edge logic used.
+- Exercise 2: The logic used for the debounce timer logic and the button pressed logic.
+- Exercise 3: Picture of the LED turned on.
+- Exercise 4: Full code with comments.
+- Exercise 5: Full code with comments.
+
+For each of the exercises, if you were not able to get something to work, please describe what is and isn't working, and what next steps to keep going might be.
+
+## Code Conventions (same as last time)
+When including code in your lab reports, please follow the following conventions:
+- Use text, *not* screenshots
+- Use a monospace font such as Courier New (for a list, see [here](https://en.wikipedia.org/wiki/List_of_monospaced_typefaces))
+- Use single spacing (i.e. 1.0 spacing; Google Docs defaults to 1.15)
+- Include comments that explain what the code does to someone else in the class already familiar with programming basics; you do not need a comment for every line
+- Check your comments and make sure they wrap to the next line (or put them there manually) when printing/saving your document
+
+These conventions make your code much easier for me to test and grade promptly. Any code that does not follow these conventions may have points deducted.
+
+## Report Submission (same as last time)
+**Reports are due one week after your scheduled lab session.** One group member should submit the lab report as a PDF on Moodle and list each other group member on the front page. Any reports with missing group members may have points deducted.
+
+
+
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js" charset="utf-8"></script><script src="https://morgan3d.github.io/markdeep/latest/markdeep.min.js" charset="utf-8"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
