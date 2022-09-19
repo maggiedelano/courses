@@ -159,19 +159,21 @@ To test if your LED works, add a line to `setup()` that sets 7 as an output: `pi
 ## Toggle LED State (2 pts)
 Update your code from previous exercises to toggle the LED state when the UP button is pressed.
 
-## Toggle LED Based on Sequence of Button Presses (4 pts)
-Now that you've got the LED toggling working for one button press, let's update our code to work with all buttons and then use those buttons to turn on the LED based on a sequence of button presses. Complete the following steps, saving the code separately each time in case you make a mistake in the later steps:
+## Turn On LED Based on Sequence of Button Presses (4 pts)
+Let's update our code to work with all buttons and then use those buttons to turn on the LED based on a sequence of button presses. The code only needs to turn the LED on a single time, but it needs to only work for the specified sequence of a DOWN button press, then an UP button press, then a LEFT button press. If any other buttons are pressed in between, it should reset and require the user to start from the beginning. Use print statements to the serial monitor to help you debug your code and display the current state of the system.
+
+Complete the following steps, saving the code separately each time in case you make a mistake in the later steps:
 
 1. Update your code so that it can detect button presses from each button without debounce. Confirm this works by sending messages to the serial terminal.
-2. Update your code so all four buttons work with their own debounce timers.
-3. Add additional logic using `if` statements and variables to keep track of the current state of the system, and only turn the LED on after a sequence of at least 3 different button presses (e.g. UP then DOWN then RIGHT).
+2. Update your code so all four buttons work with debounce. You may assume only one button is pressed at a time.
+3. Add additional logic using `if` statements and variables to keep track of the current state of the system, and only turn the LED on after a sequence of UP then DOWN then LEFT. You should be able to hit the reset button on the Arduino and repeat the process. Alternatively, pressing an incorrect button can turn off the LED.
 
-If you are stuck on part 2, you can skip it and come back to it later, but you should complete it for full points.
+If you are stuck on part 2, you can skip it and come back to it later, but you should complete it for full points. This exercise can be completed using only boolean variables to keep track of the unlock state, but you can use anything you've learned in lecture thus far.
 
 ## Challenge Exercise
 If you finish early, please attempt this challenge exercise. The exercise will not be graded, but is a more difficult problem that will extend your existing knowledge. Include what progress you've made by the end of the lab period. I'll go over ways to approach the challenge exercise at the beginning of the next lab.
 
-Update your code so that combinations of two button presses (e.g. UP/DOWN or UP/RIGHT) can be used to toggle the LED in addition to single button presses. This can be done using only boolean variables, but you may want to use variables other than booleans to keep track of the state, if you weren't already doing that for Exercise 5.
+Update your code so that combinations of two button presses (e.g. UP/DOWN or UP/RIGHT) can be used in sequence to turn on the LED in addition to single button presses. This can be done using only boolean variables, but you may want to use variables other than booleans to keep track of the state (if you weren't already doing that for Exercise 5).
 
 # Lab Report
 ## Points Breakdown
@@ -180,14 +182,14 @@ This lab will be worth 10 points total, allocated as follows:
 2. Writing Debounce Code For A Button (2 pts)
 3. Wiring up an LED (1 pt)
 4. Toggle LED State (2 pts)
-5. Toggle LED Based on Sequence of Button Presses (4 pts)
+5. Turn on LED Based on Sequence of Button Presses (4 pts)
 
 In order to receive full points, the lab report should contain the following information:
 - Exercise 1: Falling edge logic used.
 - Exercise 2: The logic used for the debounce timer logic and the button pressed logic.
 - Exercise 3: Picture of the LED turned on.
-- Exercise 4: Full code with comments.
-- Exercise 5: Full code with comments.
+- Exercise 4: Full code with comments. Please also upload a .ino of the final working code.
+- Exercise 5: Full code with comments. Please also upload a .ino of the final working code.
 
 For each of the exercises, if you were not able to get something to work, please describe what is and isn't working, and what next steps to keep going might be.
 
