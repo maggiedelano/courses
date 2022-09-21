@@ -85,7 +85,7 @@ void loop(){
 }
 ```
 
-The `pinMode()` function adds a pull up resistor to the `BUP` pin. The state of the pin should now change when you press the button. However, the transition is the opposite of what you saw in lecture: a button press is detected on a *falling* edge instead of a rising one. Write a program that detects the falling edge and prints a message to the serial port when a button press is detected. You can use code from lecture as a starting point if you'd like, but remember to use `digitalRead()` instead of one of the `CircuitPlayground` functions. 
+The `pinMode()` function adds a pull up resistor to the `BUP` pin. The state of the pin should now change when you press the button. However, the transition is the opposite of what you saw in lecture: a button press is detected on a *falling* edge instead of a rising one. Write a program that detects the falling edge and prints a message to the serial port when a button press is detected. *This message should only print once per button press.* You can use code from lecture as a starting point if you'd like, but remember to use `digitalRead()` instead of one of the `CircuitPlayground` functions. 
 
 ## Writing Debounce Code For A Button (2 pts)
 
@@ -93,11 +93,11 @@ You may have already noticed that our button press detection code sometimes dete
 
 ![Figure [CNC]: Example push button bounce on microcontroller pin ([image source](https://www.best-microcontroller-projects.com/image-files/switch_bounce.png))](https://www.best-microcontroller-projects.com/image-files/switch_bounce.png)
 
-This occurs because the mechanical components inside push buttons "bounce" off of each other, mostly due to the spring inside the push button. In order to prevent this "bounce," we can write code that ignores the extra bounces and only registers a button press if the button has been depressed for a certain period of time called the **debounce time**. The debounce time depends on the properties of the button, but it's usually around 50 – 150 ms. 
+This occurs because the mechanical components inside push buttons "bounce" off of each other, mostly due to the spring inside the push button. In order to prevent this "bounce," we can write code that ignores the extra bounces and only registers a button press if the button has been depressed for a certain period of time called the **debounce delay time**. The debounce delay time depends on the properties of the button, but it's usually around 50 – 150 ms. 
 
 One way to implement this would be to use `delay()` to wait for the debounce time, and then check if the button is still pressed. If the button is still pressed, we should display the button pressed result to the serial monitor. However, the major issue with using `delay()` is that it is what is called a **blocking operation**. While we are waiting for the `delay()` function to finish, our code cannot do anything else. Although fine for a simple example, this won't work when we need our code to do other things, like check other buttons. 
 
-Instead of `delay()`, we'll use a **non-blocking operation** using an if statement and a function called `millis()`. This function returns the number of milliseconds since the program has started as an `unsigned long`. We can compare the current time to the last time that a button press was last detected. If it has been enough time, we check to see if the button is still pressed. If it is, we display the message to the serial terminal. Your code will then look something like the below. You'll need to figure out and fill in the logic for the corresponding `if` statements.
+Instead of `delay()`, we'll use a **non-blocking operation** using an if statement and a function called `millis()`. This function returns the number of milliseconds since the program has started as an `unsigned long`. We can compare the current time to the last time that a button press was last detected. If it has been enough time (i.e. greater than the debounce delay time), we check to see if the button is still pressed. If it is, we display the message to the serial terminal. Your code will then look something like the below. You'll need to figure out and fill in the logic for the corresponding `if` statements.
 
 ```
 #define BRHT 3
@@ -133,6 +133,7 @@ void loop(){
   if (DEBOUNCE TIMER LOGIC){
     
     // if button is still pressed, print press message 
+    // logic should check both prevStateUp and currStateUp
     if (BUTTON PRESSED LOGIC){
       Serial.println("UP button press detected!");
     }
@@ -157,16 +158,16 @@ Connect the resistor to pin 7 using a short wire. You can get a piece of wire us
 To test if your LED works, add a line to `setup()` that sets 7 as an output: `pinMode(7, OUTPUT);`. This allows us to use the `digitalWrite()` function to turn the LED on and off. You can use the `digitalWrite(7,HIGH)` command to turn the LED on. This sets pin 7 to `HIGH` (or 1). To turn the LED off, you can use `digitalWrite(7, LOW)`. 
 
 ## Toggle LED State (2 pts)
-Update your code from previous exercises to toggle the LED state when the UP button is pressed.
+Update your code from previous exercises to toggle the LED state when the UP button is pressed. This means that when the code starts, the LED should be OFF. Then, after you press the UP button, the LED should turn on (and stay on). When you press the button a second time, the LED should turn off. The state of the LED should change (i.e. toggle) each time you press the button, and maintain its state between button presses.
 
 ## Turn On LED Based on Sequence of Button Presses (4 pts)
-Let's update our code to work with all buttons and then use those buttons to turn on the LED based on a sequence of button presses. The code only needs to turn the LED on a single time, but it needs to only work for the specified sequence of a DOWN button press, then an UP button press, then a LEFT button press. If any other buttons are pressed in between, it should reset and require the user to start from the beginning. Use print statements to the serial monitor to help you debug your code and display the current state of the system.
+Let's update our code to work with all buttons and then use those buttons to turn on the LED based on a sequence of button presses. The code only needs to turn the LED on a single time, but it needs to only work for the specified sequence of a DOWN button press, then an UP button press, then a LEFT button press. If any other buttons are pressed in between (including the RIGHT button), it should reset and require the user to start from the beginning. Use print statements to the serial monitor to help you debug your code and display the current state of the system.
 
 Complete the following steps, saving the code separately each time in case you make a mistake in the later steps:
 
 1. Update your code so that it can detect button presses from each button without debounce. Confirm this works by sending messages to the serial terminal.
 2. Update your code so all four buttons work with debounce. You may assume only one button is pressed at a time.
-3. Add additional logic using `if` statements and variables to keep track of the current state of the system, and only turn the LED on after a sequence of UP then DOWN then LEFT. You should be able to hit the reset button on the Arduino and repeat the process. Alternatively, pressing an incorrect button can turn off the LED.
+3. Add additional logic using `if` statements and variables to keep track of the current state of the system, and only turn the LED on after a sequence of DOWN then UP then LEFT. You should be able to hit the reset button on the Arduino and repeat the process. Alternatively, pressing an incorrect button can turn off the LED.
 
 If you are stuck on part 2, you can skip it and come back to it later, but you should complete it for full points. This exercise can be completed using only boolean variables to keep track of the unlock state, but you can use anything you've learned in lecture thus far.
 
