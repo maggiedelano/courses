@@ -1,0 +1,52 @@
+**ENGR 015 Lab 3 (Fall 2022): Using A Joystick To Control A Bank of LEDs**
+
+# Lab Overview
+In this lab, you will learn how to control the Joystick on the Sparkfun Joystick Shield. You will use the Joystick to control the intensity of an LED, and then write code to configure the Joystick to set a bit inside a variable using bitwise manipulation when it is pressed in a specific direction. After you configure your bitwise manipulation, you will display the state of each of the four bits on a set of 4 LEDs.
+
+# Lab Groups
+Will be shared in class.
+
+# Joystick Shield Review
+For this lab we will be using the [Sparkfun Joystick Shield](https://www.sparkfun.com/products/9760) along with the [Arduino Uno](https://store-usa.arduino.cc/products/arduino-uno-rev3) like in Lab 2. As a reminder, here's the pin out of the shield:
+
+- A0 – Joystick X 
+- A1 – Joystick Y 
+- 2 – Joystick Select Button
+- 3 – Right Button
+- 4 – Up Button
+- 5 – Down Button
+- 6 – Left Button
+
+To use these values in our code, we can define each pin at the top of our file. Feel free to use names that make sense to you. A common convention in C programming is to use upper case variable names for `#define` statements, but this is not required. Here's how an example file might look:
+
+```
+#define BRHT 3
+#define BUP 4
+#define BDWN 5
+#define BLFT 6
+
+#define JOYX A0
+#define JOYY A1
+#define JOYSEL 2
+
+void setup(){
+
+}
+
+void loop(){
+
+}
+```
+
+
+# Pre-lab
+Please complete the pre-lab on [Moodle](https://moodle.swarthmore.edu/mod/quiz/view.php?id=565881) before the start of your lab period!
+
+# Lab Exercises
+TBD
+
+# Lab Report
+TBD
+
+
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js" charset="utf-8"></script><script src="https://morgan3d.github.io/markdeep/latest/markdeep.min.js" charset="utf-8"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
