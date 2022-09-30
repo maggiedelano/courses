@@ -1,7 +1,7 @@
 **ENGR 015 Lab 3 (Fall 2022): Using A Joystick To Control A Bank of LEDs**
 
 # Lab Overview
-In this lab, you will learn how to control the Joystick on the Sparkfun Joystick Shield. You will use the Joystick to control the intensity of an LED, and then write code to configure the Joystick to set a bit inside a variable using bitwise manipulation when it is pressed in a specific direction. After you configure your bitwise manipulation, you will display the state of each of the four bits on a set of 4 LEDs.
+In this lab, you will learn how to control the Joystick on the Sparkfun Joystick Shield. You will use the Joystick to control the intensity of a set of four LEDs, and then write code to configure the Joystick to set a bit inside a variable using bitwise manipulation when it is pressed in a specific direction. If you have time, you'll use this variable to create a Joystick interface that works like a cursor or button.
 
 # Lab Groups
 Will be shared in class.
@@ -43,10 +43,230 @@ void loop(){
 Please complete the pre-lab on [Moodle](https://moodle.swarthmore.edu/mod/quiz/view.php?id=565881) before the start of your lab period!
 
 # Lab Exercises
-TBD
+
+## Reading Joystick Position (1 pt)
+
+The Joystick has two potentiometers (X and Y axes) that are used to sense the position of the Joystick (see figure below). When the Joystick is moved, the potentiometer position changes, changing the voltage on the corresponding pin connected to the Arduino Uno. These voltages can be sensed using `analogRead()`, which returns a value between 0 and 1023 (i.e. 10 bits) based on the position of the Joystick. 
+
+![Figure [Joystick]: **Left:** The two potentiometers on the Joystick. **Right:** Example Joystick movement.](images/Joystick_Demonstration.jpg)
+
+Use the code included below to answer the following questions. Include your answers in your lab report.
+
+1. When the Joystick is in a neutral position (i.e. not pushed in any direction), what are the X and Y values printed to the serial terminal?
+2. When the Joystick is pressed all the way to the left, what does the Joystick read? Repeat for all three directions (right, up, down).
+3. What happens when you move the Joystick in more than one direction at a time, e.g. up and to the right?
+
+
+```
+#define BRHT 3
+#define BUP 4
+#define BDWN 5
+#define BLFT 6
+
+#define JOYX A0
+#define JOYY A1
+#define JOYSEL 2
+
+
+void setup() {
+  Serial.begin(9600);
+  while(!Serial);
+  
+}
+
+void loop() {
+
+  Serial.print("X: ");
+  Serial.print(analogRead(JOYX));
+  Serial.print(" Y: ");
+  Serial.println(analogRead(JOYY));
+
+  delay(100); // print about 10 times per second
+}
+```
+
+## Controlling LED Brightness Using The Joystick (2 pt)
+
+For this exercise, we'll use `analogWrite()` to change the brightness of an LED based on the position of the Joystick in the X axis (i.e. left to right). Wire up a single LED the way that you did in Lab 2, except this time connect the LED to **pin 10** on the Arduino Uno instead of pin 7. 
+
+Instead of using `digitalWrite()` to control the state of the LED, let's use `analogWrite()`. `analogWrite()` requires two arguments like `digitalWrite()`. The first one for both is the pin (in this case pin 10), but instead of setting the pin to `HIGH` or `LOW` we'll set it to a value between 0 and 255. Update your code to output an analog value to pin 10 based on the value of the Joystick X axis. 
+
+**If it's been 5 minutes and you're still stuck, hover over the "get a hint" text below:** <p title="Use the map() function like we went over in the pre-lab. Be sure that you save the value from analogRead as an integer as it is 10 bits.">Get A Hint</p>
+
+## Turning Off The LED Using the Joystick Select Button (1 pt)
+
+We'll be using multiple LEDs for the next couple exercises, and since they can be bright, it's nice to have an easy way to toggle the LEDs on and off. Update your code from the previous exercise so that pressing the Joystick toggles the state of the LED (either on with intensity controlled by Joystick position, or off):
+
+1. First, make a sketch to test the Joystick select button. The button is similar to the push buttons from Lab 2. Test the button: does it have the same bounce issue as the larger push buttons? If yes, update your sketch with the debounce code; otherwise, proceed to the next step using the simpler code. Reference code from Lab 2 is included at the end of the lab.
+2. Integrate the button press code into your code from the previous exercise. When the button is pressed, the code should change a variable that determines whether the LEDs are on or off. 
+
+**If it's been 5 minutes and you're still stuck, hover over the "get a hint" text below:** <p title="The LED brightness needs to be updated continuously when the LED state is 'on,' even if a button isn't being pressed. However, whether the LED is on (with varying brightness) or off should only be updated when the button is pressed.">Get A Hint</p>
+
+## Using LEDs To Indicate Relative Joystick Position (3 pts)
+
+Now we'd like to expand our hardware to include four LEDs. The LEDs should be added to the breadboard in a square, such that we can rotate the breadboard 45 degrees and have a diamond shape. They should be connected to the following pins: 3,9,10,11. Because we only have 3 GND pins on the Arduino Uno, connect the GND wires of each LED subcircuit to one of the black power rails, and then connect a wire from that black power rail to one of the GND pins on the Arduino Uno. Verify that each of the LEDs can be turned on using `digitalWrite()`.
+
+Now that you have four LEDs that can be turned on/off, update your code from the previous exercise: when the Joystick is in a neutral position, all the LEDs should be off. When the Joystick is moved in a direction (e.g. to the left), the brightness of the left LED should increase until a maximum value when the Joystick is pressed fully to the side (i.e. 255). The same should be true for each LED and direction (left, right, up, down). ***Plan out your approach on paper and share it with Prof. Delano and/or Ann before you start coding.***
+
+**If it's been 10 minutes and you're still stuck, hover over the "get a hint" text below:** <p title="Think about how you can use if statements, map() and the neutral 'zero' values of the Joystick.">Get A Hint</p>
+
+## Monitoring Joystick State Using Bitwise Manipulation (3 pts)
+
+You may have already noticed that the Joystick axes return the same value each time when pressed to their extremes (e.g. all the way up). We can use this to use the Joystick like a button or cursor by storing "0" when the Joystick is in a neutral position and "1" when the Joystick is at the extreme of a given axis (left, right, up or down). Create a new sketch and create a `char` variable called `joyStates`. We will use the lower nibble (bits 0–3) to keep track of the state of each of the Joystick directions (left (3), right (2), down (1), or up (0)). 
+
+1. Write a sketch that sets the corresponding bit when the Joystick is in at the extreme of a given axis. For example, if the Joystick is pushed all the way up, `joyStates` should be 0b00000001. The code should set multiple bits high if the Joystick is pushed to multiple extremes (e.g. up and left). Whenever the Joystick is not at an extreme, clear the the bit instead (i.e. set it to 0). ***Plan out your approach on paper and share it with Prof. Delano and/or Ann before you start coding.*** You can test your code by printing the `joyStates` variable: `Serial.println(joyStates,BIN);`
+2. `Serial.println()` doesn't print binary numbers with leading zeros. Adapt the while loop code below to print the lower nibble to the serial terminal so you can monitor and verify your results more easily. You'll need to update the code with the correct value for `X` and the code that checks the bit `LOOP` in the `if` statement.
+
+```
+int loop = 3;
+
+while (loop > X){ 
+
+// check bit loop; if 1, print 1, otherwise print 0
+if (BIT LOOP IS 1){
+  Serial.print(1);
+}
+
+else {
+  Serial.print(0);
+}
+loop--;
+}
+```
+
+**If it's been 10 minutes and you're still stuck, hover over the "get a hint" text below:** <p title="For part 1, make sure to check each state (left, right, down, up) each time you run loop() and update the corresponding bit.">Get A Hint</p>
+
+## Challenge 
+
+Now that we have 1s and 0s for the states of the Joystick, we can use rising edge logic to use the Joystick as a button.
+
+1. Write a short sketch that outputs a message to the serial terminal whenever the Joystick is pressed to an extreme in any direction. First, output two messages if the Joystick is pushed in two extremes. Then, update the code so that it outputs a distinct message based on the output (e.g. "UP RIGHT"). 
+2. Write a new sketch that uses the LEDs in a new way: instead of controlling the LED brightness, use the Joystick to control which LED is turned on at a given time. Moving the Joystick should change which LED is on, and it should stay on even after you release the Joystick. For example, when the code starts, the bottom left LED is on. Pushing the Joystick up turns off the bottom left LED and turns on the top left LED. Pushing up again keeps the same LED on. Pushing to the right turns on the top right LED and turns off the top left LED. 
 
 # Lab Report
-TBD
+
+## Points breakdown:
+
+This lab will be worth 10 points total, allocated as follows:
+
+1. Reading Joystick Position (1 pt)
+2. Controlling LED Brightness Using The Joystick (2 pts)
+3. Turning Off The LED Using the Joystick Select Button (1 pt)
+4. Using LEDs To Indicate Relative Joystick Position (3 pts)
+5. Monitoring Joystick State Using Bitwise Manipulation (3 pts)
+
+In order to receive full points, the lab report should contain the following information:
+- Exercise 1: Answers to the three questions posted above.
+- Exercise 2: A code snippet that shows how you used `map()` to output the LED brightness.
+- Exercise 3: Nothing needed so long as you complete Exercise 4. Otherwise, full code and .ino.
+- Exercise 4: Full code with comments. Please also upload a .ino of the final working code.
+- Exercise 5: Full code with comments. Please also upload a .ino of the final working code.
+
+## Code Conventions (same as last time)
+When including code in your lab reports, please follow the following conventions:
+- Use text, *not* screenshots
+- Use a monospace font such as Courier New (for a list, see [here](https://en.wikipedia.org/wiki/List_of_monospaced_typefaces))
+- Use single spacing (i.e. 1.0 spacing; Google Docs defaults to 1.15)
+- Include comments that explain what the code does to someone else in the class already familiar with programming basics; you do not need a comment for every line
+- Check your comments and make sure they do not wrap to the next line (or put them there manually) when printing/saving your document
+
+These conventions make your code much easier for me to test and grade promptly. Any code that does not follow these conventions may have points deducted.
+
+## Report Submission
+**Reports are due one week after your scheduled lab session.** One group member should submit the lab report as a PDF on Moodle and list each other group member on the front page. Any reports with missing group members may have points deducted. For the .ino files, format them based on the section letter and group number with no spaces: `Exercise_4_A1.ino`.
+
+# Reference Code From Lab 2
+
+## Lab 2, Exercise 1
+
+```
+#define BRHT 3
+#define BUP 4
+#define BDWN 5
+#define BLFT 6
+
+#define JOYX A0
+#define JOYY A1
+#define JOYSEL 2
+
+bool currStateUp;
+bool prevStateUp;
+
+void setup() {
+  
+  Serial.begin(9600);
+  while(!Serial);
+  
+  pinMode(BUP,INPUT_PULLUP);
+}
+
+void loop() {
+
+  // update state
+  prevStateUp = currStateUp;
+  currStateUp = digitalRead(BUP);
+
+  // detect rising edge
+  if (!currStateUp && prevStateUp){
+    Serial.println("UP button press detected!");
+  }
+
+}
+```
+
+## Lab 2, Exercise 2
+
+```
+#define BRHT 3
+#define BUP 4
+#define BDWN 5
+#define BLFT 6
+
+#define JOYX A0
+#define JOYY A1
+#define JOYSEL 2
+
+bool currStateUp;
+bool prevStateUp;
+bool up; // keep track of printing up press
+
+unsigned long lastButtonPress;
+unsigned long debounceDelay = 50;
+
+void setup() {
+  
+  Serial.begin(9600);
+  while(!Serial);
+  
+  pinMode(BUP,INPUT_PULLUP);
+}
+
+void loop() {
+
+  // update state
+  prevStateUp = currStateUp;
+  currStateUp = digitalRead(BUP);
+
+  // detect rising edge
+  if (!currStateUp && prevStateUp){
+    lastButtonPress = millis();
+    Serial.println(lastButtonPress);
+    up = true;
+  }
+
+  // wait for debounceDelay
+  if ((millis() - lastButtonPress) > debounceDelay){
+
+  	// if button is still pressed and not printed, print
+    if (!currStateUp && !prevStateUp && up){
+      Serial.println("UP button press detected!");  
+      up = false;
+    }
+  }
+
+}
+```
+
 
 
 <!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js" charset="utf-8"></script><script src="https://morgan3d.github.io/markdeep/latest/markdeep.min.js" charset="utf-8"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
