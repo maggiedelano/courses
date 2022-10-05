@@ -106,6 +106,8 @@ We'll be using multiple LEDs for the next couple exercises, and since they can b
 
 Now we'd like to expand our hardware to include four LEDs. The LEDs should be added to the breadboard in a square, such that we can rotate the breadboard 45 degrees and have a diamond shape. They should be connected to the following pins: 3,9,10,11. Because we only have 3 GND pins on the Arduino Uno, connect the GND wires of each LED subcircuit to one of the black power rails, and then connect a wire from that black power rail to one of the GND pins on the Arduino Uno. Verify that each of the LEDs can be turned on using `digitalWrite()`.
 
+![Figure [LEDs]: An example setup of the four LEDs. Each LED is a similar circuit to Lab 2, but the ground wires are all connected to the ground rail and a single wire is connected to the Uno.](images/LED_wiring_lab3.png)
+
 Now that you have four LEDs that can be turned on/off, update your code from the previous exercise: when the Joystick is in a neutral position, all the LEDs should be off. When the Joystick is moved in a direction (e.g. to the left), the brightness of the left LED should increase until a maximum value when the Joystick is pressed fully to the side (i.e. 255). The same should be true for each LED and direction (left, right, up, down). ***Plan out your approach on paper and share it with Prof. Delano and/or Ann before you start coding.***
 
 **If it's been 10 minutes and you're still stuck, hover over the "get a hint" text below:** <p title="Think about how you can use if statements, map() and the neutral 'zero' values of the Joystick.">Get A Hint</p>
@@ -114,8 +116,8 @@ Now that you have four LEDs that can be turned on/off, update your code from the
 
 You may have already noticed that the Joystick axes return the same value each time when pressed to their extremes (e.g. all the way up). We can use this to use the Joystick like a button or cursor by storing "0" when the Joystick is in a neutral position and "1" when the Joystick is at the extreme of a given axis (left, right, up or down). Create a new sketch and create a `char` variable called `joyStates`. We will use the lower nibble (bits 0–3) to keep track of the state of each of the Joystick directions (left (3), right (2), down (1), or up (0)). 
 
-1. Write a sketch that sets the corresponding bit when the Joystick is in at the extreme of a given axis. For example, if the Joystick is pushed all the way up, `joyStates` should be 0b00000001. The code should set multiple bits high if the Joystick is pushed to multiple extremes (e.g. up and left). Whenever the Joystick is not at an extreme, clear the the bit instead (i.e. set it to 0). ***Plan out your approach on paper and share it with Prof. Delano and/or Ann before you start coding.*** You can test your code by printing the `joyStates` variable: `Serial.println(joyStates,BIN);`
-2. `Serial.println()` doesn't print binary numbers with leading zeros. Adapt the while loop code below to print the lower nibble to the serial terminal so you can monitor and verify your results more easily. You'll need to update the code with the correct value for `X` and the code that checks the bit `LOOP` in the `if` statement.
+1. Write a sketch that sets the corresponding bit when the Joystick is in at the extreme of a given axis. For example, if the Joystick is pushed all the way up, `joyStates` should be 0b00000001. The code should set multiple bits high if the Joystick is pushed to multiple extremes (e.g. up and left). Whenever the Joystick is not at an extreme, clear the bit instead (i.e. set it to 0). ***Plan out your approach on paper and share it with Prof. Delano and/or Ann before you start coding.*** You can test your code by printing the `joyStates` variable: `Serial.println(joyStates,BIN);`
+2. `Serial.println()` doesn't print binary numbers with leading zeros. Adapt the while loop code below to print the lower nibble to the serial terminal so you can monitor and verify your results more easily. You'll need to update the code with the correct value for `X` and the code that checks the bit `LOOP` in `joyStates` in the `if` statement.
 
 ```
 int loop = 3;
@@ -123,7 +125,7 @@ int loop = 3;
 while (loop > X){ 
 
 // check bit loop; if 1, print 1, otherwise print 0
-if (BIT LOOP IS 1){
+if (BIT LOOP IN JOYSTATES IS 1){
   Serial.print(1);
 }
 
@@ -140,8 +142,8 @@ loop--;
 
 Now that we have 1s and 0s for the states of the Joystick, we can use rising edge logic to use the Joystick as a button.
 
-1. Write a short sketch that outputs a message to the serial terminal whenever the Joystick is pressed to an extreme in any direction. First, output two messages if the Joystick is pushed in two extremes. Then, update the code so that it outputs a distinct message based on the output (e.g. "UP RIGHT"). 
-2. Write a new sketch that uses the LEDs in a new way: instead of controlling the LED brightness, use the Joystick to control which LED is turned on at a given time. Moving the Joystick should change which LED is on, and it should stay on even after you release the Joystick. For example, when the code starts, the bottom left LED is on. Pushing the Joystick up turns off the bottom left LED and turns on the top left LED. Pushing up again keeps the same LED on. Pushing to the right turns on the top right LED and turns off the top left LED. 
+1. Write a short sketch that outputs a message to the serial terminal whenever the Joystick is pressed to an extreme in any direction. First, output two messages if the Joystick is pushed in two extremes. Then, update the code so that it outputs a distinct message based on the output (e.g. "UP RIGHT"). The message should only display once per "press" like with the push buttons.
+2. Write a sketch that uses the LEDs in a new way: instead of controlling the LED brightness, use the Joystick to control which LED is turned on at a given time. Moving the Joystick should change which LED is on, and it should stay on even after you release the Joystick. For example, when the code starts, the bottom left LED is on. Pushing the Joystick up turns off the bottom left LED and turns on the top left LED. Pushing up again keeps the same LED on. Pushing to the right turns on the top right LED and turns off the top left LED. 
 
 # Lab Report
 
@@ -173,7 +175,7 @@ When including code in your lab reports, please follow the following conventions
 These conventions make your code much easier for me to test and grade promptly. Any code that does not follow these conventions may have points deducted.
 
 ## Report Submission
-**Reports are due one week after your scheduled lab session.** One group member should submit the lab report as a PDF on Moodle and list each other group member on the front page. Any reports with missing group members may have points deducted. For the .ino files, format them based on the section letter and group number with no spaces: `Exercise_4_A1.ino`.
+**Reports are due one week after your scheduled lab session.** If you are in a lab section before Fall Break (Section A or Section B), you will have two weeks (i.e. Fall Break does not count toward time you have to submit the lab). If you are stuck and would like to request an extension, please check in with Prof. Delano first. One group member should submit the lab report as a PDF on Moodle and list each other group member on the front page. Any reports with missing group members may have points deducted. For the .ino files, format them based on the section letter and group number with no spaces: `Exercise_4_A1.ino`.
 
 # Reference Code From Lab 2
 
