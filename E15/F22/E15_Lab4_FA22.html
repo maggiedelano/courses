@@ -1,0 +1,51 @@
+**ENGR 015 Lab 4 (Fall 2022): RoboLaser**
+
+# Lab Overview
+In this lab, you will learn how to use Servo motors to control a "RoboLaser" assembly. You will write a program that controls the position of the RoboLaser using the Joystick, and calibrate the RoboLaser so it can be used to draw a circle. A similar device that has two separate potentiometers is shown in the video below:
+
+<center>
+  <iframe src="https://www.youtube.com/embed/W-HHfmpBoiY" frameborder="0" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen=""></iframe>
+</center>
+
+In the video above, one potentiometer moves the dot projected by the laser in the _x_ direction and the other moves it in the _y_ direction. We'll implement something similar using the two potentiometers attached to the Joystick.
+
+!!! Warning
+    **Do not shine the laser directly into your eyes or anyone else's!**
+    
+    Be careful not to shine the laser at a highly reflective surface such as a mirror, window, or glass whiteboard.
+
+# Lab Groups
+Will be shared in class.
+
+# Pre-lab
+
+In order to control the RoboLaser, we need to understand the coordinate frame and dimenions of the RoboLaser setup. Consider the diagram below:
+
+![Figure [diagram]: Coordinate frame and important dimensions for the RoboLaser setup.](images/diagram.png)
+
+Your laser will be situated at point O, pointing towards the board, which is parallel to the _x_ and _y_ axes, and perpendicular to the _z_ axis. Point C is the actual location on the board illuminated by the laser. Its 3D coordinates in the coordinate frame described above are (u,v,d).
+
+The angle α controls the horizontal rotation of the laser, and β controls the vertical rotation. Therefore triangle OAB is a right triangle with base d, height u, hypotenuse ℓ, and angle α at vertex O. Furthermore, triangle OBC is also a right triangle with base ℓ, height v, hypotenuse r, and angle β at vertex O.
+
+Note that although u and v depend on α and β (the servo rotation angles), d is fixed. This is the distance between the center of rotation and the board itself, which you will measure when you configure your setup in lab.
+
+You goal will be to program the laser to drive to an arbitrary (u,v) location for a fixed d; that is the Joystick should be treated as inputs for u and v and not merely as inputs for α and β.
+
+Note: this image has "v" positive downwards (so that xyz form a right-handed coordinate system). You can feel free to make "v" positive upwards if you prefer.
+
+Dust off your trigonometry knowledge and answer the following questions on Moodle to complete the pre-lab:
+
+1. What is α, in terms of u and d?
+2. What is ℓ, in terms of u and d?
+3. What is β, in terms of ℓ and v?
+
+# Introduction to Servo Motors
+
+
+# Lab Exercises
+TBD
+
+# Lab Report
+TBD
+
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js" charset="utf-8"></script><script src="https://morgan3d.github.io/markdeep/latest/markdeep.min.js" charset="utf-8"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
