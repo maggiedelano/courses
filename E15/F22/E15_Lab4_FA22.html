@@ -41,11 +41,252 @@ Dust off your trigonometry knowledge and answer the following questions on Moodl
 
 # Introduction to Servo Motors
 
+Servo motors are motors that move to a specific angle based on pulse width inputs. Our RoboLasers have two servo motors, one for pan, and one for tilt: 
+
+![Figure [robolaser]: RoboLaser with pan and tilt servos.](images/robolaser.jpg)
+
+To control the servos, we use the built-in Servo library to control the pulse width of a signal sent to the Servo:
+
+
+![Figure [servo]: Pulse width is varied to control servo motor position.](images/servo.png)
+
+
+# Introduction to Math Using Arduino
+
+We will need to use floating point numbers along with multiple different functions in the built-in math library for this lab. The functions we will be using are: 
+
+- `sqrt()`: takes a float and returns its square root as a float
+- `atan2()`: takes two floats and returns the inverse tangent of the two in radians (opposite first, adjacent second) 
+- `M_PI` a constant defined in `math.h` to be the value of pi
+
+!!! tip Notes on inverse tangent
+    `atan2()` returns radians and not degrees. We need to convert to degrees to use with the Servos.
+
+    We must use the `atan2()` function and not the `atan()` function to avoid sign errors.
+
+Run the following code and familiarize yourself with the results. Use these results to guide you as to whether or not you should be using integers or floats for variables throughout the lab.
+
+```
+#include <math.h>     // Need to include math.h file
+
+#define RAD2DEG (180.0/M_PI)  // M_PI is defined in math.h to be value of pi
+
+float xFloat;         // Declare a float variable
+int xInt;             // Declare an int variable
+
+void setup() {       
+  Serial.begin(9600);
+  while (!Serial);      // Wait for Serial port to open
+
+  // Here we do the division as ints, then set to int variable.
+  xInt = 6/10;
+  Serial.print("xInt = 6/10 = "); Serial.println(xInt);
+
+  // Here we do the division as ints, then set to float variable.
+  xFloat = 6/10;
+  Serial.print("xFloat = 6/10 = "); Serial.println(xFloat);
+
+  // Here we do the divide by a float, then set to an int at variable.
+  xInt = 6/10.;
+  Serial.print("xInt = 6/10. = "); Serial.println(xInt);
+ 
+  // Divide by 10.0 (a float) to get float result from division
+  xFloat = 6/10.;
+  Serial.print("xFloat = 6/10. = "); Serial.println(xFloat);
+
+  // Square root
+  Serial.print("sqrt(32.0) = "); Serial.println(sqrt(32.0)); 
+
+  // Trig functions use radians.
+  xFloat = atan2(1,1);
+  Serial.print("atan2(1,1) = "); Serial.print(xFloat);  Serial.print(" radians = "); 
+  Serial.print(xFloat*RAD2DEG);  Serial.println(" degrees");     
+}     
+
+void loop() {       
+ 
+}
+```
 
 # Lab Exercises
-TBD
+
+## Setting the servos to a fixed position (1 pt)
+
+Let's set up the servos and test that we can move them to a set of fixed positions by running the code below. 
+
+1. Servos draw a lot of current so we need an additional power supply. Connect it to the board next to where the USB is plugged in.
+2. Each servo has three wires: red (5V power), black (ground), and yellow (signal, pin 9 or pin 10). Use your breadboard and provided header pins to connect each servo to the Arduino Uno. Note that there is only one 5V port, so connect the two red pins together on the breadboard and then connect one wire to the board. You may also do the same for ground (GND).
+3. Run the code below. It should move each servo between two different angles.
+
+
+!!! warning
+    You will need an external power source for any of the steps that require moving servo motors. Don't forget this. Operating the servos without the external power source can damage the Arduino Uno.
+
+
+```
+#include <Servo.h>
+#include <math.h>     
+
+#define PANMOTOR  9    //Control pin on J1  
+#define TILTMOTOR 10   //Control pin on J2
+
+Servo panServo, tiltServo;  // create servo object to control a servo     
+
+void setup() {
+  panServo.attach(PANMOTOR);   // initialize the two servos    
+  tiltServo.attach(TILTMOTOR); // to use the specified pins J1/J2      
+    
+}     
+
+void loop() {
+  int p, t; // Settings for motors.   
+  
+  p=90;  // Set both motors to 90 degrees
+  t=90;
+
+  panServo.write(p); // set angles.
+  tiltServo.write(t); 
+
+  delay(3000);
+
+  panServo.write(p+50); // change pan
+
+  delay(2000);
+  
+  tiltServo.write(t+50); // change tilt
+
+  delay(1000);
+}
+```
+
+## Zeroing the servos (1 pt)
+
+Now that the servo motors are working, it's time to set up the RoboLaser. Set up your RoboLaser about 20 to 25 cm from the paper target you were given. The exact distance isn't important, but you should measure it as accurately as you can from the point around which the laser rotates. Record the name of the RoboLaser you are using; you will want to use it again if you need to come back as each setup is a bit different from the others. Set it up so that the name on the RoboLaser faces the target. You may want to tape the RoboLaser to the table so it doesn't move.
+
+Change the values of the constants PANZERO, TILTZERO in the code below so that α and β are zero (i.e., the laser points directly forward, and is parallel to the table top) when the code runs. You shouldn't make any other changes. Note: the values given in the code below are incorrect. You will have to experiment to find the correct values. Record the values, along with d, for your lab report.
+
+After you've confirmed the RoboLaser is in the correct position, insert the laser (the bracket is shaped to turn on the laser automatically). Confirm the laser points at a neutral position, then remove the laser and proceed to the next exercise. 
+
+!!! warning
+    Don't leave the laser pointer in the bracket for too long or you'll run down the batteries.
+
+```
+#include <Servo.h>   // Needed for the servo motors
+#include <math.h>    // Needed for trig and other math functions  
+
+#define PANMOTOR  9    
+#define TILTMOTOR 10   
+
+#define PANZERO 45     //Setting the angle on the pan motor, so alpha=0
+#define TILTZERO 135   //Setting the angle on the tilt motor, so beta=0
+/*  
+ *  Note that PANZERO and TILTZERO should be near 90 degrees.
+ *  This will put the servos in the proper orientation so that
+ *  when alpha and beta are zero the laser will be level, and pointing
+ *  straight ahead. Then as alpha and beta are changed, the angles
+ *  will change appropriately
+ */
+ 
+Servo panServo, tiltServo;  // create servo object to control a servo     
+int alpha, beta;            // our two angles.
+
+// Setup
+void setup() {
+  panServo.attach(PANMOTOR);   // initialize the two servos    
+  tiltServo.attach(TILTMOTOR); // to use the specified pins          
+}  
+
+// Loop
+void loop() {
+  alpha = 0;   // alpha and beta.  Leave these as zero for Step 2
+  beta = 0;
+
+  panServo.write(PANZERO + alpha); // set angles alpha and beta.
+  tiltServo.write(TILTZERO + beta); 
+/*   Note that depending on the orientation of the motors you may
+ *   need to subtract, rather than add, alpha and/or beta from
+ *   the ZERO value to get it to move in the proper direction.
+ *   You should edit this comment with the correct information
+ *   (i.e., addition or subtraction).
+ */
+  
+  delay(100);  // Slow things down a bit.
+}
+```
+
+## Scaling Joystick Inputs (2 pts)
+
+Our next step is to program the Joystick to control the angles of the pan and tilt servos. Before we test our code with the servos, let's test our code using the serial terminal only. Write a new sketch that scales the Joystick inputs to -10 to +10 cm. Negative numbers should correspond to left and down. Test that it is mapped correctly using the serial terminal. 
+
+Update the code so that it operates at 1 mm resolution: map instead from -100 mm to +100 mm and divide the resulting number by 10. Confirm your results using the serial terminal.
+
+After you've confirmed the Joystick operates as expected, use the values in cm to calculate α and β and print them to the serial terminal. Review the math section above for relevant functions. Confirm all of your code works correctly on the serial terminal before proceeding to the next step.
+
+!!! warning
+    Do NOT test your code using live servos during this exercise. Wait until we've confirmed proper operation of the code.
+
+!!! tip
+    Be sure to check you are using the correct units (degrees not radians) and variable types (floats).
+
+## Using the Joystick to control the RoboLaser (3 pts)
+
+Now let's integrate the code we wrote in Exercise 3 with the code we wrote in Exercise 2. Update your Exercise 2 code to write to the servos using the α and β values. 
+
+Once your code is ready, set your system to point to (u,v)=(0,0) and set the paper so that the laser is at the center of the target. Mark this point. Now use the potentiometer to command it to move to each extreme (up, down, left, right) as well as the four corners (up/left, up/right, down/left, down/right). Mark the location of the laser at each of the 9 points on the target by drawing an "x" at the laser dot (or the center of the laser dot, if it is shaking). Take a picture of the target for your report.
+
+The results from the previous section may not be very accurate. The servos are not very precise, the RoboLaser might not be placed with the laser perpendicular to target and parallel to the ground when α=β=0°, the distance to the target may have some error, etc. 
+
+There are generally two ways to deal with this. One way is to get more accurate servos, measure things more precisely, and do a calibration. A second way is to apply some ad hoc corrections to your code. For example:
+
+- If your horizontal displacement is consistently too small (or large), try increasing (or decreasing) the angle α slightly from the calculated one by multiplying by a number slightly greater (less) than one. Do the same for β.
+- If your horizontal displacement is consistently to the left or right of the desired spot, try adding (subtracting) a small quantity from the calculated value for α. Do the same for β.
+
+There may be other simple tweaks that occur to you. Feel free to try what you think might help, but keep in mind that the RoboLaser is simple and you have finite time. You are not going to get it to work perfectly, but see if you can improve your original performance. 
+
+After you have completed your tweaking, repeat the test with the same target from above, but this time draw a "+" at the laser dot. Take a picture of the target for your report.
+
+## Drawing a circle automatically using the RoboLaser (3 pts)
+
+Create a new sketch that has the laser automatically create a circle with a 5 cm radius on the target. Test your code using the serial terminal before you output it to the servos! And only insert the laser when you are confident the code is correct. 
+
+The easiest way to do this is to create a variable that goes in increments from 0 to 2π, and use this number as an angle to find u and v in combination with the `sin()` and `cos()` functions. (Remember the math functions use radians and not degrees). Don't forget to add a small delay to the loop to account for the fact that the motors move slowly compared to the speed of the computer. Use previous code where possible. Record a video of your RoboLaser in action.
+
+!!! tip
+    Consider using linear interpolation to generate evenly spaced points for your circle.
+
+## Challenge
+
+Write a sketch that controls the position of the RoboLaser using the push buttons instead of the Joystick. The position of the laser should be set based on how long the push button is pressed in a given direction until it reaches the maximum allowable angle at which it should maintain the current position. Be sure to test your code with print statements before testing with the servos.
 
 # Lab Report
-TBD
+
+## Points breakdown:
+
+This lab will be worth 10 points total, allocated as follows:
+1. Setting the servos to a fixed position (1 pt)
+2. Zeroing the servos (1 pt)
+3. Scaling Joystick Inputs (2 pts)
+4. Using the Joystick to control the RoboLaser (3 pts)
+5. Drawing a circle automatically using the RoboLaser (3 pts)
+
+In order to receive full points, the lab report should contain the following information:
+- Exercise 1: Nothing needed so long as you complete the other exercises.
+- Exercise 2: The final values obtained for d, along with the values needed to "zero" the servos.
+- Exercise 3: Short code snippet demonstrating how the Joystick inputs are converted to angles.
+- Exercise 4: Full code with comments and a picture of your target. Please also upload a .ino of the final working code.
+- Exercise 5: Full code with comments and video (link or file). Please also upload a .ino of the final working code.
+
+## Code Conventions (same as last time)
+When including code in your lab reports, please follow the following conventions:
+- Use text, *not* screenshots
+- Use a monospace font such as Courier New (for a list, see [here](https://en.wikipedia.org/wiki/List_of_monospaced_typefaces))
+- Use single spacing (i.e. 1.0 spacing; Google Docs defaults to 1.15)
+- Include comments that explain what the code does to someone else in the class already familiar with programming basics; you do not need a comment for every line
+- Check your comments and make sure they do not wrap to the next line (or put them there manually) when printing/saving your document
+
+These conventions make your code much easier for me to test and grade promptly. Any code that does not follow these conventions may have points deducted.
+
+## Report Submission (same as last time)
+**Reports are due one week after your scheduled lab session.** If you are stuck and would like to request an extension, please check in with Prof. Delano first. One group member should submit the lab report as a PDF on Moodle and list each other group member on the front page. Any reports with missing group members may have points deducted. For the .ino files, format them based on the section letter and group number with no spaces: `Exercise_4_A1.ino`.
 
 <!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js" charset="utf-8"></script><script src="https://morgan3d.github.io/markdeep/latest/markdeep.min.js" charset="utf-8"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
