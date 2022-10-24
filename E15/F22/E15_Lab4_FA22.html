@@ -161,11 +161,11 @@ void loop() {
 
 ## Zeroing the servos (1 pt)
 
-Now that the servo motors are working, it's time to set up the RoboLaser. Set up your RoboLaser about 20 to 25 cm from the paper target you were given. The exact distance isn't important, but you should measure it as accurately as you can from the point around which the laser rotates. Record the name of the RoboLaser you are using; you will want to use it again if you need to come back as each setup is a bit different from the others. Set it up so that the name on the RoboLaser faces the target. You may want to tape the RoboLaser to the table so it doesn't move.
+Now that the servo motors are working, it's time to set up the RoboLaser. Set up your RoboLaser about 20 to 25 cm from the paper target you were given. The exact distance isn't important, but you should measure it as accurately as you can from the point around which the laser rotates. Record the name of the RoboLaser you are using; you will want to use it again if you need to come back as each setup is a bit different from the others. Set it up so that the name on the RoboLaser faces the target.
 
 Change the values of the constants PANZERO, TILTZERO in the code below so that α and β are zero (i.e., the laser points directly forward, and is parallel to the table top) when the code runs. You shouldn't make any other changes. Note: the values given in the code below are incorrect. You will have to experiment to find the correct values. Record the values, along with d, for your lab report.
 
-After you've confirmed the RoboLaser is in the correct position, insert the laser (the bracket is shaped to turn on the laser automatically). Confirm the laser points at a neutral position, then remove the laser and proceed to the next exercise. 
+After you've confirmed the RoboLaser is in the correct position, insert the laser (the bracket is shaped to turn on the laser automatically). Confirm the laser points at a neutral position relative to the target, then remove the laser and proceed to the next exercise. 
 
 !!! warning
     Don't leave the laser pointer in the bracket for too long or you'll run down the batteries.
@@ -216,9 +216,9 @@ void loop() {
 
 ## Scaling Joystick Inputs (2 pts)
 
-Our next step is to program the Joystick to control the angles of the pan and tilt servos. Before we test our code with the servos, let's test our code using the serial terminal only. Write a new sketch that scales the Joystick inputs to -10 to +10 cm. Negative numbers should correspond to left and down. Test that it is mapped correctly using the serial terminal. 
+Our next step is to program the Joystick to control the angles of the pan and tilt servos. Before we test our code with the servos, let's test our code using the serial terminal only. Write a new sketch that scales the Joystick inputs to -8 to +8 cm. Negative numbers should correspond to left and down. Test that it is mapped correctly using the serial terminal. 
 
-Update the code so that it operates at 1 mm resolution: map instead from -100 mm to +100 mm and divide the resulting number by 10. Confirm your results using the serial terminal.
+Update the code so that it operates at 1 mm resolution: map instead from -80 mm to +80 mm and divide the resulting number by 10. Confirm your results using the serial terminal.
 
 After you've confirmed the Joystick operates as expected, use the values in cm to calculate α and β and print them to the serial terminal. Review the math section above for relevant functions. Confirm all of your code works correctly on the serial terminal before proceeding to the next step.
 
@@ -247,7 +247,7 @@ After you have completed your tweaking, repeat the test with the same target fro
 
 ## Drawing a circle automatically using the RoboLaser (3 pts)
 
-Create a new sketch that has the laser automatically create a circle with a 5 cm radius on the target. Test your code using the serial terminal before you output it to the servos! And only insert the laser when you are confident the code is correct. 
+Create a new sketch that has the laser automatically create a circle with a 8 cm radius on the target. Test your code using the serial terminal before you output it to the servos! And only insert the laser when you are confident the code is correct. 
 
 The easiest way to do this is to create a variable that goes in increments from 0 to 2π, and use this number as an angle to find u and v in combination with the `sin()` and `cos()` functions. (Remember the math functions use radians and not degrees). Don't forget to add a small delay to the loop to account for the fact that the motors move slowly compared to the speed of the computer. Use previous code where possible. Record a video of your RoboLaser in action.
 
