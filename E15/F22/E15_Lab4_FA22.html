@@ -114,17 +114,21 @@ void loop() {
 
 Let's set up the servos and test that we can move them to a set of fixed positions by running the code below. 
 
-1. Servos draw a lot of current so we need an additional power supply. Connect it to the board next to where the USB is plugged in.
-2. Each servo has three wires: red (5V power), black (ground), and yellow (signal, pin 9 or pin 10). Use your breadboard and provided header pins to connect each servo to the Arduino Uno. Note that there is only one 5V port, so connect the two red pins together on the breadboard and then connect one wire to the board. You may also do the same for ground (GND).
+1. Servos draw a lot of current so we need an additional power supply. Place a barrel jack connector into the bottom of your breadboard as shown in the image below. You will need to connect the bottom two pins to ground. The easiest way to do this is to use a small wire to connect the two pins and then connect one to the ground rail. Also connect the top pin to the power rail.
+2. Each servo has three wires: red (power), black (ground), and yellow (signal). Use your breadboard and provided header pins to connect each servo to the breadboard. Connect the two red pins to the power rail on the breadboard. Connect the two black pins to both the ground rail on the breadboard AND the Arduino Uno GND pin. Connect the yellow pins to pin 9 and 10 on the Arduino Uno.
 3. Run the code below. It should move each servo between two different angles.
+
+![Figure [ps]: Set up for the external power supply. The bottom two pins should be connected together and to the ground rail. The top pin should be connected to the power rail.](images/power_supply.png)
 
 
 !!! warning
     You will need an external power source for any of the steps that require moving servo motors. Don't forget this. Operating the servos without the external power source can damage the Arduino Uno.
 
+    Also be sure to connect the ground wire from the breadboard to an Arduino GND pin.
+
 
 ```
-#include <Servo.h>
+#include &lt;Servo.h&gt
 #include <math.h>     
 
 #define PANMOTOR  9    //Control pin on J1  
